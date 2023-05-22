@@ -18,6 +18,7 @@ import {
 // Constants
 //
 
+const LS_KEY_CONTACTS = 'contacts';
 const EDITOR_TITLE_ADD = `Add contact`;
 const EDITOR_TITLE_EDIT = `Edit contact`;
 const MSG_NO_CONTACTS = `You don't have any contacts yet`;
@@ -34,12 +35,25 @@ export class App extends Component {
   state = {
     showEditor: false,
     editedIndex: -1,
-    contacts: initialContacts,
+    contacts: [],
     filter: '',
   };
 
   componentDidMount() {
+    // извлекаем список из хранилища
+    const stored = localStorage.getItem(LS_KEY_CONTACTS);
+    this.setState({ contacts: stored ? JSON.parse(stored) : initialContacts });
+
+    // сортировка по имени
     this.handleListSort(null, 'name', true);
+  }
+
+  componentDidUpdate(_, prevState) {
+    const { contacts } = this.state;
+    // сохраняем список в хранилище
+    if (contacts !== prevState.contacts) {
+      localStorage.setItem(LS_KEY_CONTACTS, JSON.stringify(contacts));
+    }
   }
 
   set editedIndex(idx) {
